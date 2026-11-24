@@ -9,7 +9,7 @@ export function errorHandler(error, req, res, next) {
     return next(error);
   }
 
-  const statusCode = error.statusCode ?? 500;
+  const statusCode = error.statusCode ?? error.status ?? 500;
   const message =
     statusCode >= 500 && process.env.NODE_ENV === 'production'
       ? 'Internal server error'
