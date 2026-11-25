@@ -4,6 +4,7 @@ import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 import authRoutes from './modules/auth/auth.routes.js';
 import employerRoutes from './modules/employers/employer.routes.js';
 import healthRoutes from './modules/health/health.routes.js';
+import requirementRoutes from './modules/requirements/requirement.routes.js';
 import workerRoutes from './modules/workers/worker.routes.js';
 
 const app = express();
@@ -15,6 +16,7 @@ app.use('/api/health', healthRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/workers', workerRoutes);
 app.use('/api/employers', employerRoutes);
+app.use('/api/requirements', requirementRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

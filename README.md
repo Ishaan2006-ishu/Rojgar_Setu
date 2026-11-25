@@ -23,6 +23,32 @@ are removed automatically. Set `JWT_SECRET` in `backend/.env` to a unique,
 random value of at least 32 characters. The sample value in `.env.example` is
 for configuration illustration only and must not be used in production.
 
+### Job requirements
+
+Employers post work requirements under `/api/requirements`. Every endpoint
+needs a bearer token, and creating, listing, editing or closing needs an
+employer profile (`POST /api/employers/profile`).
+
+| Method & path | Purpose |
+| --- | --- |
+| `POST /api/requirements` | Create a requirement (status `open`, or `draft`). |
+| `GET /api/requirements/mine?page=1&limit=20&status=open` | List your own requirements (limit ≤ 50). |
+| `GET /api/requirements/:id` | View a requirement. Drafts are visible only to their owner. |
+| `PATCH /api/requirements/:id` | Owner edits allowed fields. Closed or filled requirements return 409. |
+| `POST /api/requirements/:id/close` | Owner closes it, with an optional `reason`. |
+
+A requirement has `title`, `description`, `occupation`, `requiredSkills`,
+`workType` (`permanent`, `part_time`, `on_demand`, `short_term`),
+`workLocation` (`coordinates: [longitude, latitude]`, optional `area`/`city`),
+`schedule` (`startAt`, `endAt`, optional `durationHours`), `vacanciesTotal`
+and `pricing` (`method`: `fixed`, `open_to_offers` or `negotiable`). Pricing
+amounts are integer paise in `amountMinor`; a fixed price needs an amount and a
+`unit` (`hour`, `day`, `month`, `job`). `vacanciesFilled` and the owner are set
+by the server and cannot be sent by clients.
+
+`npm test` runs the requirement tests against the `rojgar_setu_test` database
+on the local MongoDB. They are skipped when MongoDB is not running.
+
 ## Frontend
 
 Start the backend, then run `npm install` and `npm run dev` from `frontend/`.
