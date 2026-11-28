@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 import app from '../src/app.js';
 import Session from '../src/modules/auth/session.model.js';
 import User from '../src/modules/users/user.model.js';
+import { registerUser } from '../src/modules/auth/auth.service.js';
 
 async function startTestServer() {
   const server = app.listen(0);
@@ -199,5 +200,35 @@ test('registration rejects invalid capability values', async () => {
     assert.equal((await response.json()).success, false);
   } finally {
     await closeServer(server);
+  }
+});
+
+test('registration does not report unrelated duplicate-key errors as email conflicts', async () => {
+  const originalFindOne = User.findOne;
+  const originalCreate = User.create;
+
+  User.findOne = () => ({
+    select: async () => null,
+  });
+  User.create = async () => {
+    throw Object.assign(new Error('Duplicate identifier index'), {
+      code: 11000,
+      keyPattern: { identifier: 1 },
+    });
+  };
+
+  try {
+    await assert.rejects(
+      registerUser({
+        name: 'Rojgar User',
+        email: 'new-user@example.com',
+        password: 'a-secure-password',
+        capabilities: ['worker'],
+      }),
+      (error) => error.code === 11000 && !error.statusCode,
+    );
+  } finally {
+    User.findOne = originalFindOne;
+    User.create = originalCreate;
   }
 });

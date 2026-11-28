@@ -25,7 +25,7 @@ export async function registerUser({ name, email, password, capabilities }) {
   try {
     return await User.create({ name, email, passwordHash, capabilities });
   } catch (error) {
-    if (error.code === 11000) {
+    if (error.code === 11000 && error.keyPattern?.email === 1) {
       throw createAuthError(409, 'An account with this email already exists');
     }
 
